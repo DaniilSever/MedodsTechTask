@@ -5,9 +5,6 @@ services:
       context: .
       args:
         ENV: "local"
-    command:
-      # - sh -c "wait-postgres.sh"
-      # - sh -c "go test ./app/... && ./app/server"
     volumes:
       - ./src:/src
     ports:

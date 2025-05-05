@@ -1,25 +1,35 @@
-FROM cgr.dev/chainguard/go:latest AS builder
+FROM golang:1.22-alpine AS builder
 
-WORKDIR /src
-RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /src
-
-# Копируем vendor-архив
-COPY src/vendor.tar.gz .
-RUN tar -xzf vendor.tar.gz && rm vendor.tar.gz
-
-COPY src/go.mod src/go.sum ./
-
-# Copyng source code
-COPY src/ /src/
-
-# Сборка с локальными зависимостями
-RUN CGO_ENABLED=0 go build -mod=vendor -ldflags="-s -w" -o /app/server ./app/main.go
-
-FROM cgr.dev/chainguard/wolfi-base:latest
+# Устанавливаем swag и зависимости
+RUN go install github.com/swaggo/swag/cmd/swag@latest && \
+    go install github.com/go-playground/validator/v10@latest
 
 WORKDIR /app
 
-COPY --from=builder /app/server /server
+# Копируем зависимости и скачиваем их
+COPY src/go.mod src/go.sum ./
+RUN go mod download
 
+# Копируем исходный код
+COPY . .
+
+# Генерируем Swagger-документацию
+RUN swag init -g src/app/main.go  # Укажи путь к main.go
+
+# Билдим приложение
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/server ./src/app/main.go
+
+# === Финальная стадия (минимальный образ) ===
+FROM alpine:latest
+
+WORKDIR /app
+
+# Копируем бинарник и документацию
+COPY --from=builder /app/bin/server .
+COPY --from=builder /app/docs ./docs
+
+# Порт для приложения (Gin/Echo)
 EXPOSE 8080
-CMD ["/server"]
+
+# Запускаем сервер
+CMD ["./server"]
