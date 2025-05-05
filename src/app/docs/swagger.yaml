@@ -1,0 +1,62 @@
+basePath: /api/v1
+definitions:
+  auth.QEmailSignup:
+    properties:
+      id:
+        type: string
+      password:
+        type: string
+    type: object
+  auth.ZEmailSignup:
+    properties:
+      created_at:
+        example: "2024-02-13 05:37:40.483836"
+        type: string
+      id:
+        example: 592af5b5-4f60-4ddd-b080-be674c86eda8
+        type: string
+      updated_at:
+        example: "2024-02-13 05:37:40.483836"
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for authentication
+  title: Service API
+  version: "1.0"
+paths:
+  /user/auth/health:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Проверка работоспособности сервиса
+      tags:
+      - Auth
+  /user/auth/signup/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.QEmailSignup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.ZEmailSignup'
+      summary: Регистрация пользователя
+      tags:
+      - Auth
+swagger: "2.0"
