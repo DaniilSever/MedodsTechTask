@@ -2,9 +2,11 @@ basePath: /api/v1
 definitions:
   auth.QEmailSignup:
     properties:
-      id:
+      email:
+        example: user@example.com
         type: string
       password:
+        example: "123123"
         type: string
     type: object
   auth.ZEmailSignup:

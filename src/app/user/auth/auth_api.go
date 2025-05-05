@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/MedodsTechTask/app/core"
+	auth "github.com/MedodsTechTask/app/user/auth/share"
 )
 
 func SetupRoutes(r *gin.RouterGroup) {
@@ -29,5 +32,12 @@ func healthCheck(c *gin.Context) {
 // @Success 200 {object} auth.ZEmailSignup
 // @Router /user/auth/signup/email [post]
 func signupEmail(c *gin.Context) {
+	var req auth.QEmailSignup
 
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, req)
 }

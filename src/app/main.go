@@ -4,6 +4,7 @@ import (
 	"github.com/MedodsTechTask/app/core"
 	"github.com/MedodsTechTask/app/user/auth"
 	_ "github.com/MedodsTechTask/docs"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -17,9 +18,16 @@ import (
 func main() {
 	r := gin.Default()
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // Или конкретные домены
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Инициализация роутов
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	api := r.Group(core.BasePath)
 	{
 		auth.SetupRoutes(api.Group(core.UserAuthPath))

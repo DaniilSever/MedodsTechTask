@@ -72,11 +72,13 @@ const docTemplate = `{
         "auth.QEmailSignup": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string"
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123123"
                 }
             }
         },

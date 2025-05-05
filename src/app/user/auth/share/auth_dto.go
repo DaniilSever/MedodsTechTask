@@ -5,8 +5,8 @@ import (
 )
 
 type QEmailSignup struct {
-	Email    string `json:"id"`
-	Password string `json:"password"`
+	Email    string `json:"email" example:"user@example.com"`
+	Password string `json:"password" example:"123123"`
 }
 
 type QConfirmEmail struct {
