@@ -5,7 +5,9 @@ services:
       context: .
       args:
         ENV: "local"
-    command: sh -c "go test ./... && ./server"
+    command:
+      # - sh -c "wait-postgres.sh"
+      # - sh -c "go test ./app/... && ./app/server"
     volumes:
       - ./src:/src
     ports:
@@ -16,7 +18,7 @@ services:
       medods-local:
         ipv4_address: 175.243.0.10
     depends_on:
-    - postgres-db
+      - postgres-db
   
   postgres-db:
     container_name: postgres-db
@@ -31,6 +33,7 @@ services:
       PGDATA: /data/postgres
     volumes:
       - db:/data/postgres
+      - ./migrations/:/docker-entrypoint-initdb.d/
     ports:
       - "15432:5432"
     restart: unless-stopped

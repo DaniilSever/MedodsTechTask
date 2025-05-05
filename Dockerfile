@@ -1,35 +1,25 @@
 FROM cgr.dev/chainguard/go:latest AS builder
 
-# Устанавливаем swag и validator
-RUN go install github.com/swaggo/swag/cmd/swag@latest && \
-    go install github.com/go-playground/validator/v10@latest
+WORKDIR /src
+RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /src
 
-WORKDIR /app
+# Копируем vendor-архив
+COPY src/vendor.tar.gz .
+RUN tar -xzf vendor.tar.gz && rm vendor.tar.gz
 
-# Копируем зависимости и скачиваем их
-COPY go.mod go.sum ./
-RUN go mod download
+COPY src/go.mod src/go.sum ./
 
-# Копируем исходный код
-COPY . .
+# Copyng source code
+COPY src/ /src/
 
-# Генерируем Swagger
-RUN swag init -g src/app/main.go
+# Сборка с локальными зависимостями
+RUN CGO_ENABLED=0 go build -mod=vendor -ldflags="-s -w" -o /app/server ./app/main.go
 
-# Билдим приложение (статически линкуем)
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /app/bin/server ./src/app/main.go
-
-# === Финальная стадия ===
 FROM cgr.dev/chainguard/wolfi-base:latest
 
 WORKDIR /app
 
-# Копируем бинарник и документацию
-COPY --from=builder /app/bin/server .
-COPY --from=builder /app/docs ./docs
-
-# Настраиваем пользователя (не root)
-USER 65532:65532
+COPY --from=builder /app/server /server
 
 EXPOSE 8080
-CMD ["./server"]
+CMD ["/server"]
