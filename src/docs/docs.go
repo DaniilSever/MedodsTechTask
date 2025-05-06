@@ -53,7 +53,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.QEmailSignup"
+                            "$ref": "#/definitions/share.QEmailSignup"
                         }
                     }
                 ],
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.ZEmailSignup"
+                            "$ref": "#/definitions/share.ZEmailSignup"
                         }
                     }
                 }
@@ -69,9 +69,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.QEmailSignup": {
+        "share.QEmailSignup": {
             "type": "object",
             "properties": {
+                "confim_pwd": {
+                    "type": "string",
+                    "example": "123123"
+                },
                 "email": {
                     "type": "string",
                     "example": "user@example.com"
@@ -82,16 +86,33 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.ZEmailSignup": {
+        "share.ZEmailSignup": {
             "type": "object",
             "properties": {
+                "code": {
+                    "description": "Добавлено для local debug",
+                    "type": "string",
+                    "example": "123456"
+                },
                 "created_at": {
                     "type": "string",
                     "example": "2024-02-13 05:37:40.483836"
                 },
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
                 "id": {
                     "type": "string",
                     "example": "592af5b5-4f60-4ddd-b080-be674c86eda8"
+                },
+                "passwd_hash": {
+                    "type": "string",
+                    "example": "592af5b54f604dddb080be674c86eda8"
+                },
+                "salt": {
+                    "type": "string",
+                    "example": "592af5b54f604dddb080be674c86eda8"
                 },
                 "updated_at": {
                     "type": "string",

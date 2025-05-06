@@ -26,4 +26,5 @@ go.work.sum
 
 .tar.gz
 
-docs/*
+tmp/
+.swagger_hash

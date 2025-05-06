@@ -1,7 +1,10 @@
 basePath: /api/v1
 definitions:
-  auth.QEmailSignup:
+  share.QEmailSignup:
     properties:
+      confim_pwd:
+        example: "123123"
+        type: string
       email:
         example: user@example.com
         type: string
@@ -9,13 +12,26 @@ definitions:
         example: "123123"
         type: string
     type: object
-  auth.ZEmailSignup:
+  share.ZEmailSignup:
     properties:
+      code:
+        description: Добавлено для local debug
+        example: "123456"
+        type: string
       created_at:
         example: "2024-02-13 05:37:40.483836"
         type: string
+      email:
+        example: user@example.com
+        type: string
       id:
         example: 592af5b5-4f60-4ddd-b080-be674c86eda8
+        type: string
+      passwd_hash:
+        example: 592af5b54f604dddb080be674c86eda8
+        type: string
+      salt:
+        example: 592af5b54f604dddb080be674c86eda8
         type: string
       updated_at:
         example: "2024-02-13 05:37:40.483836"
@@ -50,14 +66,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.QEmailSignup'
+          $ref: '#/definitions/share.QEmailSignup'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.ZEmailSignup'
+            $ref: '#/definitions/share.ZEmailSignup'
       summary: Регистрация пользователя
       tags:
       - Auth

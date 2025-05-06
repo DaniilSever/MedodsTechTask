@@ -5,6 +5,9 @@ services:
       context: .
       args:
         ENV: "local"
+    environment:
+      - http_proxy=http://213.176.75.31:3128
+      - https_proxy=http://213.176.75.31:3128
     volumes:
       - ./src:/src
     ports:

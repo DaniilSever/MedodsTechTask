@@ -11,22 +11,47 @@ CREATE EXTENSION "uuid-ossp";
 DROP TABLE IF EXISTS "SignupEmail" CASCADE;
 CREATE TABLE "SignupEmail"
 (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    passwd_hash VARCHAR(255) NOT NULL,
-    salt VARCHAR(127) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at TIMESTAMP NULL
+    id              UUID            DEFAULT uuid_generate_v4() PRIMARY KEY,
+    email           VARCHAR(255)    NOT NULL UNIQUE,
+    code            VARCHAR(255)    NOT NULL,
+    passwd_hash     VARCHAR(255)    NOT NULL,
+    salt            VARCHAR(127)    NOT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at      TIMESTAMP       NULL
 );
 --
 CREATE INDEX ON "SignupEmail" (email);
 --
-COMMENT ON TABLE "SignupEmail" is 'Регистрация по емейл';
+COMMENT ON TABLE "SignupEmail" is 'Таблица аккаунтов на регистрацию';
 COMMENT ON COLUMN "SignupEmail".email is 'Емейл пользователя';
+COMMENT ON COLUMN "SignupEmail".code is 'Код подтверждения аккаунта';
 COMMENT ON COLUMN "SignupEmail".passwd_hash is 'SHA-256-хеш пароля';
 COMMENT ON COLUMN "SignupEmail".salt is 'Соль для хеша';
 COMMENT ON COLUMN "SignupEmail".created_at is 'Создание записи по UTC';
 COMMENT ON COLUMN "SignupEmail".updated_at is 'Время последнего обновления';
+
+-- --------------------------------
+
+DROP TABLE IF EXISTS "Account";
+CREATE TABLE "Account"
+(
+    id              UUID            DEFAULT uuid_generate_v4() PRIMARY KEY,
+    email           VARCHAR(255)    NOT NULL UNIQUE,
+    passwd_hash     VARCHAR(255)    NOT NULL,
+    salt            VARCHAR(127)    NOT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at      TIMESTAMP       NULL
+);
+--
+CREATE INDEX ON "Account" (email);
+--
+COMMENT ON TABLE "Account" is 'Таблица аккаунтов пользователей';
+COMMENT ON COLUMN "Account".email is 'Емейл пользователя';
+COMMENT ON COLUMN "Account".passwd_hash is 'SHA-256-хеш пароля';
+COMMENT ON COLUMN "Account".salt is 'Соль для хеша';
+COMMENT ON COLUMN "Account".created_at is 'Создание записи по UTC';
+COMMENT ON COLUMN "Account".updated_at is 'Время последнего обновления';
+
 
 -- --------------------------------
 
