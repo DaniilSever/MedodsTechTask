@@ -1,5 +1,14 @@
 basePath: /api/v1
 definitions:
+  share.QConfirmEmail:
+    properties:
+      code:
+        example: "123456"
+        type: string
+      signup_id:
+        example: 592af5b5-4f60-4ddd-b080-be674c86eda8
+        type: string
+    type: object
   share.QEmailSignup:
     properties:
       confim_pwd:
@@ -10,6 +19,40 @@ definitions:
         type: string
       password:
         example: "123123"
+        type: string
+    type: object
+  share.QLoginEmail:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      password:
+        example: "123123"
+        type: string
+    type: object
+  share.QRefreshToken:
+    properties:
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTk5OTk5OTk5OSwiaWF0IjoxNzAwMDAwMDAwLCJpc3MiOiJleGFtcGxlLWFwcCJ9.rnH9fqOBlB4tfbgIhJX_yta9Z9yVtOmMFLhy5aC_cC8
+        type: string
+    type: object
+  share.ZAccount:
+    properties:
+      created_at:
+        example: "2024-02-13 05:37:40.483836"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      id:
+        example: 592af5b5-4f60-4ddd-b080-be674c86eda8
+        type: string
+      passwd_hash:
+        type: string
+      salt:
+        type: string
+      updated_at:
+        example: "2024-02-13 05:37:40.483836"
         type: string
     type: object
   share.ZEmailSignup:
@@ -37,6 +80,18 @@ definitions:
         example: "2024-02-13 05:37:40.483836"
         type: string
     type: object
+  share.ZToken:
+    properties:
+      bearer:
+        example: Authefication
+        type: string
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTk5OTk5OTk5OSwiaWF0IjoxNzAwMDAwMDAwLCJpc3MiOiJleGFtcGxlLWFwcCJ9.rnH9fqOBlB4tfbgIhJX_yta9Z9yVtOmMFLhy5aC_cC8
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTk5OTk5OTk5OSwiaWF0IjoxNzAwMDAwMDAwLCJpc3MiOiJleGFtcGxlLWFwcCJ9.rnH9fqOBlB4tfbgIhJX_yta9Z9yVtOmMFLhy5aC_cC8
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -44,6 +99,27 @@ info:
   title: Service API
   version: "1.0"
 paths:
+  /user/auth/confirm/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные подтверждения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/share.QConfirmEmail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/share.ZAccount'
+      summary: Подтверждение регистрации
+      tags:
+      - Auth
   /user/auth/health:
     get:
       consumes:
@@ -54,6 +130,48 @@ paths:
         "200":
           description: OK
       summary: Проверка работоспособности сервиса
+      tags:
+      - Auth
+  /user/auth/login/email:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные аккаунта
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/share.QLoginEmail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/share.ZToken'
+      summary: Вход в аккаунт через email
+      tags:
+      - Auth
+  /user/auth/refresh/token:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Токен
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/share.QRefreshToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/share.ZToken'
+      summary: Рефреш токена
       tags:
       - Auth
   /user/auth/signup/email:

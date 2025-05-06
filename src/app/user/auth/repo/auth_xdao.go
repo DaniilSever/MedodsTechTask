@@ -29,8 +29,10 @@ type XConfirmEmail struct {
 }
 
 type XRefreshToken struct {
-	ID        string    `db:"id"`
-	AccountID string    `db:"accouint_id"`
-	Token     string    `db:"token"`
-	ExpiresAt time.Time `db:"expires_at"`
+	ID        string     `db:"id"`
+	AccountID string     `db:"accouint_id"`
+	Token     string     `db:"token"`
+	ExpiresAt time.Time  `db:"expires_at"`
+	CreatedAt time.Time  `db:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at"`
 }

@@ -15,6 +15,39 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/user/auth/confirm/email": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Подтверждение регистрации",
+                "parameters": [
+                    {
+                        "description": "Данные подтверждения",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/share.QConfirmEmail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/share.ZAccount"
+                        }
+                    }
+                }
+            }
+        },
         "/user/auth/health": {
             "get": {
                 "consumes": [
@@ -30,6 +63,72 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/user/auth/login/email": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Вход в аккаунт через email",
+                "parameters": [
+                    {
+                        "description": "Данные аккаунта",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/share.QLoginEmail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/share.ZToken"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/auth/refresh/token": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Рефреш токена",
+                "parameters": [
+                    {
+                        "description": "Токен",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/share.QRefreshToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/share.ZToken"
+                        }
                     }
                 }
             }
@@ -69,6 +168,19 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "share.QConfirmEmail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "signup_id": {
+                    "type": "string",
+                    "example": "592af5b5-4f60-4ddd-b080-be674c86eda8"
+                }
+            }
+        },
         "share.QEmailSignup": {
             "type": "object",
             "properties": {
@@ -83,6 +195,55 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123123"
+                }
+            }
+        },
+        "share.QLoginEmail": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123123"
+                }
+            }
+        },
+        "share.QRefreshToken": {
+            "type": "object",
+            "properties": {
+                "refresh_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTk5OTk5OTk5OSwiaWF0IjoxNzAwMDAwMDAwLCJpc3MiOiJleGFtcGxlLWFwcCJ9.rnH9fqOBlB4tfbgIhJX_yta9Z9yVtOmMFLhy5aC_cC8"
+                }
+            }
+        },
+        "share.ZAccount": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-02-13 05:37:40.483836"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "592af5b5-4f60-4ddd-b080-be674c86eda8"
+                },
+                "passwd_hash": {
+                    "type": "string"
+                },
+                "salt": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-02-13 05:37:40.483836"
                 }
             }
         },
@@ -117,6 +278,23 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2024-02-13 05:37:40.483836"
+                }
+            }
+        },
+        "share.ZToken": {
+            "type": "object",
+            "properties": {
+                "bearer": {
+                    "type": "string",
+                    "example": "Authefication"
+                },
+                "refresh_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTk5OTk5OTk5OSwiaWF0IjoxNzAwMDAwMDAwLCJpc3MiOiJleGFtcGxlLWFwcCJ9.rnH9fqOBlB4tfbgIhJX_yta9Z9yVtOmMFLhy5aC_cC8"
+                },
+                "token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NSIsImV4cCI6MTk5OTk5OTk5OSwiaWF0IjoxNzAwMDAwMDAwLCJpc3MiOiJleGFtcGxlLWFwcCJ9.rnH9fqOBlB4tfbgIhJX_yta9Z9yVtOmMFLhy5aC_cC8"
                 }
             }
         }

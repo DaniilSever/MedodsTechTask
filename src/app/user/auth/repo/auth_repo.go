@@ -7,14 +7,13 @@ import (
 
 	"github.com/MedodsTechTask/app/core"
 	"github.com/MedodsTechTask/app/user/auth/configs"
-	"github.com/MedodsTechTask/app/user/auth/share"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type IAuthRepo interface {
 	CreateEmailSignup(ctx context.Context, email string, passwd_hash string, code string, salt string) (*XEmailSignup, error)
-	CreateAccount(ctx context.Context, req *share.QCreateAccount) (*XAccount, error)
+	CreateAccount(ctx context.Context, req *XEmailSignup) (*XAccount, error)
 	GetEmailSignup(ctx context.Context, id string) (*XEmailSignup, error)
 	GetAccountForEmail(ctx context.Context, email string) (*XAccount, error)
 	DeleteEmailSignup(ctx context.Context, id string) (bool, error)
@@ -79,7 +78,7 @@ func (r *AuthRepo) CreateEmailSignup(ctx context.Context, email string, passwd_h
 	return &res, nil
 }
 
-func (r *AuthRepo) CreateAccount(ctx context.Context, req *share.QCreateAccount) (*XAccount, error) {
+func (r *AuthRepo) CreateAccount(ctx context.Context, req *XEmailSignup) (*XAccount, error) {
 	const q = `
 		INSERT INTO "Account"
 		(
@@ -98,7 +97,7 @@ func (r *AuthRepo) CreateAccount(ctx context.Context, req *share.QCreateAccount)
 	defer conn.Release()
 
 	var res XAccount
-	err = conn.QueryRow(ctx, q, req.Email, req.PasswdHash, req.Salt).Scan(&res.ID, &res.Email, &res.PasswordHash, &res.Salt, &res.CreatedAt, &res.UpdatedAt)
+	err = conn.QueryRow(ctx, q, req.Email, req.PasswordHash, req.Salt).Scan(&res.ID, &res.Email, &res.PasswordHash, &res.Salt, &res.CreatedAt, &res.UpdatedAt)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -151,7 +150,6 @@ func (r *AuthRepo) GetAccountForEmail(ctx context.Context, email string) (*XAcco
 		SELECT
 			id
 			, email
-			, code
 			, passwd_hash
 			, salt
 			, created_at
@@ -216,8 +214,9 @@ func (r *AuthRepo) SaveRefreshToken(ctx context.Context, account_id string, toke
 			, expires_at
 		)
 		VALUES ($1, $2, NOW() + INTERVAL '5 days')
-		RETURNING *
+		RETURNING *;
 	`
+
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error to connections on PG: %w", err)
@@ -225,7 +224,7 @@ func (r *AuthRepo) SaveRefreshToken(ctx context.Context, account_id string, toke
 	defer conn.Release()
 
 	var res XRefreshToken
-	err = conn.QueryRow(ctx, q, account_id, token).Scan(&res.ID, &res.AccountID, &res.Token, &res.ExpiresAt)
+	err = conn.QueryRow(ctx, q, account_id, token).Scan(&res.ID, &res.AccountID, &res.Token, &res.ExpiresAt, &res.CreatedAt, &res.UpdatedAt)
 
 	if err != nil {
 		var pgErr *pgconn.PgError

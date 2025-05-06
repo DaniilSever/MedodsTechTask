@@ -15,20 +15,9 @@ type QConfirmEmail struct {
 	Code     string `json:"code" example:"123456"`
 }
 
-type QCreateEmailSignup struct {
-	Email      string     `json:"email"`
-	PasswdHash string     `json:"passwd_hash"`
-	Salt       string     `json:"salt"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at"`
-}
-
-type QCreateAccount struct {
-	Email      string     `json:"email"`
-	PasswdHash string     `json:"passwd_hash"`
-	Salt       string     `json:"salt"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at"`
+type QLoginEmail struct {
+	Email    string `json:"email" example:"user@example.com"`
+	Password string `json:"password" example:"123123"`
 }
 
 type ZEmailSignup struct {
@@ -52,10 +41,12 @@ type ZAccountID struct {
 }
 
 type ZAccount struct {
-	ID        string     `json:"id" example:"592af5b5-4f60-4ddd-b080-be674c86eda8"`
-	Email     string     `json:"email" example:"user@example.com"`
-	CreatedAt time.Time  `json:"created_at" example:"2024-02-13 05:37:40.483836"`
-	UpdatedAt *time.Time `json:"updated_at" example:"2024-02-13 05:37:40.483836"`
+	ID         string     `json:"id" example:"592af5b5-4f60-4ddd-b080-be674c86eda8"`
+	Email      string     `json:"email" example:"user@example.com"`
+	PasswdHash string     `json:"passwd_hash"`
+	Salt       string     `json:"salt"`
+	CreatedAt  time.Time  `json:"created_at" example:"2024-02-13 05:37:40.483836"`
+	UpdatedAt  *time.Time `json:"updated_at" example:"2024-02-13 05:37:40.483836"`
 }
 
 type QRefreshToken struct {

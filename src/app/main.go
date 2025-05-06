@@ -30,11 +30,12 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	authRepo, err := repo.NewAuthRepo(configs.GetConfig())
+	authcfg := configs.GetConfig()
+	authRepo, err := repo.NewAuthRepo(authcfg)
 	if err != nil {
 		fmt.Printf("%s", err)
 	}
-	authAPI := auth.NewAPI(auth.NewAuthUseCase(authRepo))
+	authAPI := auth.NewAPI(auth.NewAuthUseCase(authcfg, authRepo))
 
 	// Инициализация роутов
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
