@@ -25,6 +25,7 @@ func (h *API) SetupRoutes(r *gin.RouterGroup) {
 }
 
 // @Summary Регистрация пользователя
+// @Description Эндпоинт позволяет зарегистрировать свой аккаунт и получить код для подтверждения. Возвращает данные регистрируемого аккаунта
 // @Tags Auth
 // @Accept json
 // @Produce json
@@ -57,6 +58,7 @@ func (h *API) signupEmail(c *gin.Context) {
 }
 
 // @Summary Подтверждение регистрации
+// @Description Эндпоинт позволяет подтвердить свою регистрацию кодом и создать аккаунт. Возвращает данные аккаунта
 // @Tags Auth
 // @Accept json
 // @Produce json
@@ -92,6 +94,7 @@ func (h *API) confirmEmail(c *gin.Context) {
 }
 
 // @Summary Вход в аккаунт через email
+// @Description Эндпоинт позволяет пользователю войти в систему, указав свой email. Возвращает пару токенов access и refresh.
 // @Tags Auth
 // @Accept json
 // @Produce json
@@ -127,6 +130,7 @@ func (h *API) loginEmail(c *gin.Context) {
 }
 
 // @Summary Рефреш токена
+// @Description Эндпоинт позволяет обновлять access jwt token, используя парный refresh token. Возвращает пару токенов access и refresh
 // @Tags Auth
 // @Accept json
 // @Produce json

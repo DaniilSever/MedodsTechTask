@@ -17,6 +17,7 @@ const docTemplate = `{
     "paths": {
         "/user/auth/confirm/email": {
             "post": {
+                "description": "Эндпоинт позволяет подтвердить свою регистрацию кодом и создать аккаунт. Возвращает данные аккаунта",
                 "consumes": [
                     "application/json"
                 ],
@@ -68,6 +69,7 @@ const docTemplate = `{
         },
         "/user/auth/login/email": {
             "post": {
+                "description": "Эндпоинт позволяет пользователю войти в систему, указав свой email. Возвращает пару токенов access и refresh.",
                 "consumes": [
                     "application/json"
                 ],
@@ -119,6 +121,7 @@ const docTemplate = `{
         },
         "/user/auth/refresh/token": {
             "post": {
+                "description": "Эндпоинт позволяет обновлять access jwt token, используя парный refresh token. Возвращает пару токенов access и refresh",
                 "consumes": [
                     "application/json"
                 ],
@@ -170,6 +173,7 @@ const docTemplate = `{
         },
         "/user/auth/signup/email": {
             "post": {
+                "description": "Эндпоинт позволяет зарегистрировать свой аккаунт и получить код для подтверждения. Возвращает данные регистрируемого аккаунта",
                 "consumes": [
                     "application/json"
                 ],

@@ -116,6 +116,8 @@ paths:
     post:
       consumes:
       - application/json
+      description: Эндпоинт позволяет подтвердить свою регистрацию кодом и создать
+        аккаунт. Возвращает данные аккаунта
       parameters:
       - description: Данные подтверждения
         in: body
@@ -149,6 +151,8 @@ paths:
     post:
       consumes:
       - application/json
+      description: Эндпоинт позволяет пользователю войти в систему, указав свой email.
+        Возвращает пару токенов access и refresh.
       parameters:
       - description: Данные аккаунта
         in: body
@@ -182,6 +186,8 @@ paths:
     post:
       consumes:
       - application/json
+      description: Эндпоинт позволяет обновлять access jwt token, используя парный
+        refresh token. Возвращает пару токенов access и refresh
       parameters:
       - description: Токен
         in: body
@@ -215,6 +221,8 @@ paths:
     post:
       consumes:
       - application/json
+      description: Эндпоинт позволяет зарегистрировать свой аккаунт и получить код
+        для подтверждения. Возвращает данные регистрируемого аккаунта
       parameters:
       - description: Данные регистрации
         in: body

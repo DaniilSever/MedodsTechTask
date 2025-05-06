@@ -15,10 +15,28 @@ type AuthUseCase struct {
 	repo repo.IAuthRepo
 }
 
+// NewAuthUseCase создает новый экземпляр AuthUseCase с заданной конфигурацией и репозиторием.
+//
+// Параметры:
+//   - cfg: конфигурация приложения, содержащая параметры для аутентификации
+//   - repo: интерфейс репозитория для работы с данными аутентификации
+//
+// Возвращает:
+//   - указатель на новый экземпляр AuthUseCase
 func NewAuthUseCase(cfg *configs.Config, repo repo.IAuthRepo) *AuthUseCase {
 	return &AuthUseCase{cfg, repo}
 }
 
+// SignupEmail обрабатывает процесс регистрации пользователя через email. Проверяет совпадение паролей, валидирует email и пароль,
+// генерирует код подтверждения и хеширует пароль, после чего сохраняет данные в базе данных.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - req: структура с данными для регистрации пользователя (email, пароль, подтвержденный пароль)
+//
+// Возвращает:
+//   - указатель на структуру ZEmailSignup с данными пользователя, если регистрация прошла успешно
+//   - указатель на структуру ZError с описанием ошибки, если произошла ошибка на любом этапе
 func (s *AuthUseCase) SignupEmail(ctx context.Context, req *share.QEmailSignup) (*share.ZEmailSignup, *core.ZError) {
 	if !equal_passwords(req.Password, req.ConfirmedPwd) {
 		return nil, &core.ZError{
@@ -116,6 +134,16 @@ func (s *AuthUseCase) SignupEmail(ctx context.Context, req *share.QEmailSignup) 
 	}, nil
 }
 
+// ConfirmEmail подтверждает регистрацию пользователя по коду, отправленному на email.
+// В случае успешного подтверждения, создает аккаунт пользователя и удаляет запись о регистрации.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - req: структура с данными для подтверждения регистрации (ID регистрации и код подтверждения)
+//
+// Возвращает:
+//   - указатель на структуру ZAccount с данными созданного аккаунта, если подтверждение прошло успешно
+//   - указатель на структуру ZError с описанием ошибки, если произошла ошибка на любом этапе
 func (s *AuthUseCase) ConfirmEmail(ctx context.Context, req *share.QConfirmEmail) (*share.ZAccount, *core.ZError) {
 	signup_acc, err := s.repo.GetEmailSignup(ctx, req.SignupID)
 	if err != nil {
@@ -196,6 +224,19 @@ func (s *AuthUseCase) ConfirmEmail(ctx context.Context, req *share.QConfirmEmail
 	}, nil
 }
 
+// LoginEmail обрабатывает процесс входа пользователя через email и пароль.
+// Он проверяет существование аккаунта, валидирует пароль и генерирует токены доступа и обновления.
+// Также сохраняет refresh токен в базе данных.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - login: структура с email и паролем для авторизации
+//   - user_agent: строка с информацией о пользовательском агенте
+//   - ip: строка с IP-адресом пользователя
+//
+// Возвращает:
+//   - указатель на структуру ZToken с access и refresh токенами, если авторизация прошла успешно
+//   - указатель на структуру ZError с описанием ошибки, если произошла ошибка на любом этапе
 func (s *AuthUseCase) LoginEmail(ctx context.Context, login *share.QLoginEmail, user_agent string, ip string) (*share.ZToken, *core.ZError) {
 	acc, err := s.repo.GetAccountForEmail(ctx, login.Email)
 	if err != nil {
@@ -322,6 +363,19 @@ func (s *AuthUseCase) LoginEmail(ctx context.Context, login *share.QLoginEmail, 
 	}, nil
 }
 
+// RefreshToken обрабатывает запрос на обновление токена доступа с использованием refresh токена.
+// Он проверяет действительность refresh токена, его тип и соответствие с данными пользователя,
+// а также проверяет, не был ли токен отозван. В случае успеха возвращает новый токен доступа.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - req: структура с refresh токеном для обновления
+//   - user_agent: строка с информацией о пользовательском агенте
+//   - ip: строка с IP-адресом пользователя
+//
+// Возвращает:
+//   - указатель на структуру ZToken с новым access токеном и старым refresh токеном, если обновление прошло успешно
+//   - указатель на структуру ZError с описанием ошибки, если произошла ошибка на любом этапе
 func (s *AuthUseCase) RefreshToken(ctx context.Context, req *share.QRefreshToken, user_agent string, ip string) (*share.ZToken, *core.ZError) {
 	payload, err := DecodeJWT(req.RefreshToken, s.cfg.JWTPublicKey)
 	if err != nil {
@@ -454,10 +508,28 @@ func (s *AuthUseCase) RefreshToken(ctx context.Context, req *share.QRefreshToken
 
 // ----------- Tools -----------
 
+// equal_passwords сравнивает пароль и подтверждение пароля на совпадение.
+//
+// Параметры:
+//   - password: строка с паролем
+//   - confirm_pwd: строка с подтверждением пароля
+//
+// Возвращает:
+//   - true, если пароли совпадают
+//   - false, если пароли не совпадают
 func equal_passwords(password string, confirm_pwd string) bool {
 	return password == confirm_pwd
 }
 
+// ValidateCredentials проверяет валидность учетных данных пользователя.
+//
+// Параметры:
+//   - email: строка с адресом электронной почты
+//   - password: строка с паролем
+//
+// Возвращает:
+//   - true, если учетные данные валидны
+//   - ошибку, если длина пароля меньше 6 символов или email не содержит символ "@"
 func ValidateCredentials(email, password string) (bool, error) {
 	if len(password) < 6 {
 		return false, &core.ErrInvalidLenPassword{ErrMessage: nil}

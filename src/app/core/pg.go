@@ -20,12 +20,24 @@ type PgRepo struct {
 	dsn  string
 }
 
-// NewPgRepo создает новый репозиторий с подключением к PostgreSQL
+// NewPgRepo создает новый экземпляр PgRepo с заданной строкой подключения.
+//
+// Параметры:
+//   - dsn: строка подключения к базе данных
+//
+// Возвращает:
+//   - указатель на новый экземпляр PgRepo
 func NewPgRepo(dsn string) *PgRepo {
 	return &PgRepo{dsn: dsn}
 }
 
-// InitPool инициализирует пул подключений
+// InitPool инициализирует пул соединений к базе данных PostgreSQL.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//
+// Возвращает:
+//   - ошибку, если инициализация пула завершилась неудачей
 func (r *PgRepo) InitPool(ctx context.Context) error {
 	config, err := pgxpool.ParseConfig(r.dsn)
 	if err != nil {
@@ -36,7 +48,6 @@ func (r *PgRepo) InitPool(ctx context.Context) error {
 	config.MaxConns = 2
 	config.MaxConnLifetime = 500 * time.Second
 
-	// Настройка кодеков для JSON и UUID
 	config.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
 		conn.TypeMap().RegisterDefaultPgType(json.RawMessage{}, "jsonb")
 		return nil
@@ -50,7 +61,14 @@ func (r *PgRepo) InitPool(ctx context.Context) error {
 	return nil
 }
 
-// Acquire возвращает соединение из пула
+// Acquire получает подключение из пула соединений к базе данных.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем ожидания получения соединения
+//
+// Возвращает:
+//   - указатель на соединение из пула
+//   - ошибку, если не удалось получить соединение
 func (r *PgRepo) Acquire(ctx context.Context) (*pgxpool.Conn, error) {
 	if r.pool == nil {
 		if err := r.InitPool(ctx); err != nil {

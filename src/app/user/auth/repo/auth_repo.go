@@ -27,6 +27,14 @@ type AuthRepo struct {
 	cfg    *configs.Config
 }
 
+// NewAuthRepo создает новый репозиторий аутентификации с инициализацией пула соединений с базой данных.
+//
+// Параметры:
+//   - cfg: конфигурация приложения, содержащая параметры для подключения к базе данных
+//
+// Возвращает:
+//   - указатель на новый экземпляр AuthRepo
+//   - ошибку, если не удалось инициализировать репозиторий или пул соединений
 func NewAuthRepo(cfg *configs.Config) (*AuthRepo, error) {
 	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		cfg.AuthDBUSR,
@@ -46,6 +54,18 @@ func NewAuthRepo(cfg *configs.Config) (*AuthRepo, error) {
 	}, nil
 }
 
+// CreateEmailSignup создает новую запись о регистрации с email в базе данных.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - email: email пользователя
+//   - passwd_hash: хеш пароля пользователя
+//   - code: код подтверждения
+//   - salt: соль для хеширования пароля
+//
+// Возвращает:
+//   - указатель на структуру XEmailSignup, содержащую информацию о регистрации
+//   - ошибку, если операция не удалась (например, ошибка базы данных или нарушение уникальности)
 func (r *AuthRepo) CreateEmailSignup(ctx context.Context, email string, passwd_hash string, code string, salt string) (*XEmailSignup, error) {
 	const q = `
 		INSERT INTO "SignupEmail"
@@ -79,6 +99,15 @@ func (r *AuthRepo) CreateEmailSignup(ctx context.Context, email string, passwd_h
 	return &res, nil
 }
 
+// CreateAccount создает новый аккаунт в базе данных.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - req: структура XEmailSignup, содержащая данные для создания аккаунта (email, хеш пароля, соль)
+//
+// Возвращает:
+//   - указатель на структуру XAccount, содержащую информацию о созданном аккаунте
+//   - ошибку, если операция не удалась (например, ошибка базы данных или нарушение уникальности)
 func (r *AuthRepo) CreateAccount(ctx context.Context, req *XEmailSignup) (*XAccount, error) {
 	const q = `
 		INSERT INTO "Account"
@@ -111,6 +140,15 @@ func (r *AuthRepo) CreateAccount(ctx context.Context, req *XEmailSignup) (*XAcco
 	return &res, nil
 }
 
+// GetEmailSignup извлекает запись о регистрации с email из базы данных по заданному идентификатору.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - id: идентификатор записи о регистрации
+//
+// Возвращает:
+//   - указатель на структуру XEmailSignup с данными о регистрации
+//   - ошибку, если запись не найдена или произошла ошибка при запросе к базе данных
 func (r *AuthRepo) GetEmailSignup(ctx context.Context, id string) (*XEmailSignup, error) {
 	const q = `
 		SELECT
@@ -146,6 +184,15 @@ func (r *AuthRepo) GetEmailSignup(ctx context.Context, id string) (*XEmailSignup
 	return &res, nil
 }
 
+// GetAccountForEmail извлекает аккаунт из базы данных по заданному email.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - email: email для поиска соответствующего аккаунта
+//
+// Возвращает:
+//   - указатель на структуру XAccount с данными аккаунта
+//   - ошибку, если аккаунт не найден или произошла ошибка при запросе к базе данных
 func (r *AuthRepo) GetAccountForEmail(ctx context.Context, email string) (*XAccount, error) {
 	const q = `
 		SELECT
@@ -179,6 +226,15 @@ func (r *AuthRepo) GetAccountForEmail(ctx context.Context, email string) (*XAcco
 	return &res, nil
 }
 
+// DeleteEmailSignup удаляет запись о регистрации с email из базы данных по заданному идентификатору.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - id: идентификатор записи о регистрации для удаления
+//
+// Возвращает:
+//   - булевое значение, указывающее на успешность операции (true, если запись удалена)
+//   - ошибку, если операция не удалась или запись не найдена
 func (r *AuthRepo) DeleteEmailSignup(ctx context.Context, id string) (bool, error) {
 	const q = `
 		DELETE FROM "SignupEmail"
@@ -204,8 +260,18 @@ func (r *AuthRepo) DeleteEmailSignup(ctx context.Context, id string) (bool, erro
 	return true, nil
 }
 
-// ------- tokens -------
-
+// SaveRefreshToken сохраняет новый refresh-токен в базе данных для заданного аккаунта.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - account_id: идентификатор аккаунта, к которому привязан токен
+//   - user_agent: строка, представляющая user-agent устройства пользователя
+//   - ip_address: IP-адрес пользователя
+//   - token: сам refresh-токен для сохранения
+//
+// Возвращает:
+//   - указатель на структуру XRefreshToken с данными сохраненного токена
+//   - ошибку, если операция не удалась (например, ошибка базы данных или нарушение уникальности)
 func (r *AuthRepo) SaveRefreshToken(ctx context.Context, account_id string, user_agent string, ip_address string, token string) (*XRefreshToken, error) {
 	const q = `
 		INSERT INTO "RefreshToken"
@@ -241,6 +307,16 @@ func (r *AuthRepo) SaveRefreshToken(ctx context.Context, account_id string, user
 	return &res, nil
 }
 
+// GetRefreshTokenForAccount извлекает refresh-токен для заданного аккаунта из базы данных.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - account_id: идентификатор аккаунта, для которого нужно получить токен
+//   - token: сам refresh-токен для поиска в базе данных
+//
+// Возвращает:
+//   - указатель на структуру XRefreshToken с данными найденного токена
+//   - ошибку, если токен не найден или произошла ошибка при запросе к базе данных
 func (r *AuthRepo) GetRefreshTokenForAccount(ctx context.Context, account_id string, token string) (*XRefreshToken, error) {
 	const q = `
 		SELECT 
@@ -280,6 +356,15 @@ func (r *AuthRepo) GetRefreshTokenForAccount(ctx context.Context, account_id str
 	return &res, nil
 }
 
+// RevokeToken обновляет статус refresh-токенов для заданного аккаунта, помечая их как отозванные.
+//
+// Параметры:
+//   - ctx: контекст выполнения для управления временем жизни операции
+//   - account_id: идентификатор аккаунта, для которого нужно отозвать токены
+//
+// Возвращает:
+//   - булевое значение, указывающее на успешность операции (true, если токены были отозваны)
+//   - ошибку, если операция не удалась
 func (r *AuthRepo) RevokeToken(ctx context.Context, account_id string) (bool, error) {
 	const q = `
 		UPDATE "RefreshToken"

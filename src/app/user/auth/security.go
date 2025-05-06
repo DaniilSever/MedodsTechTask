@@ -13,14 +13,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// CreatePasswordHash генерирует хеш пароля с использованием соли
+// CreatePasswordHash генерирует хеш пароля с использованием соли.
 //
 // Параметры:
 //   - pwd: пароль для хеширования
 //   - salt: соль для хеширования (если пустая строка, генерируется автоматически)
 //
 // Возвращает:
-//   - хеш парля
+//   - хеш пароля
 //   - использованную соль
 //   - ошибку (если возникла)
 func CreatePasswordHash(pwd string, salt string) (string, string, error) {
@@ -46,6 +46,14 @@ func CreatePasswordHash(pwd string, salt string) (string, string, error) {
 	return hashHex, salt, nil
 }
 
+// CreateConfirmCode генерирует случайный код подтверждения.
+//
+// Параметры:
+//   - нет
+//
+// Возвращает:
+//   - сгенерированный код подтверждения
+//   - ошибку (если возникла)
 func CreateConfirmCode() (string, error) {
 	size := 6
 	scheme := "0123456789"
@@ -62,6 +70,15 @@ func CreateConfirmCode() (string, error) {
 	return string(res), nil
 }
 
+// CreateJWT генерирует JWT токен с заданной полезной нагрузкой и подписывает его с использованием приватного ключа.
+//
+// Параметры:
+//   - payload: карта с данными, которые должны быть включены в токен
+//   - private_key: строка, содержащая приватный ключ для подписи токена
+//
+// Возвращает:
+//   - сгенерированный и подписанный JWT токен
+//   - ошибку (если возникла)
 func CreateJWT(payload map[string]interface{}, private_key string) (string, error) {
 	delta := 24 * 60 * 60
 	now := time.Now().UTC()
@@ -94,6 +111,15 @@ func CreateJWT(payload map[string]interface{}, private_key string) (string, erro
 	return signedToken, nil
 }
 
+// DecodeJWT декодирует JWT токен и извлекает из него полезную нагрузку с использованием публичного ключа.
+//
+// Параметры:
+//   - token_string: строка, содержащая JWT токен для декодирования
+//   - public_key: строка, содержащая публичный ключ для проверки подписи токена
+//
+// Возвращает:
+//   - карту с полезной нагрузкой (claims) из токена
+//   - ошибку (если возникла)
 func DecodeJWT(token_string string, public_key string) (map[string]interface{}, error) {
 	key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(strings.TrimSpace(public_key)))
 	if err != nil {
