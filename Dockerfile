@@ -1,7 +1,7 @@
 FROM golang:1.24 AS builder
 
-ENV http_proxy http://213.176.75.31:3128
-ENV https_proxy http://213.176.75.31:3128
+ENV http_proxy http://docker:docker@213.176.75.31:5858
+ENV https_proxy http://docker:docker@213.176.75.31:5858
 
 ARG ENV=${ENV}
 ENV ENV=${ENV}
@@ -34,8 +34,8 @@ COPY ./src /src
 # Стадия запуска
 FROM golang:1.24 AS runner
 
-ENV http_proxy=http://213.176.75.31:3128
-ENV https_proxy=http://213.176.75.31:3128
+ENV http_proxy http://docker:docker@213.176.75.31:5858
+ENV https_proxy http://docker:docker@213.176.75.31:5858
 
 WORKDIR /src
 

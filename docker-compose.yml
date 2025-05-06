@@ -6,8 +6,8 @@ services:
       args:
         ENV: "local"
     environment:
-      - http_proxy=http://213.176.75.31:3128
-      - https_proxy=http://213.176.75.31:3128
+      - http_proxy=http://docker:docker@213.176.75.31:5858
+      - https_proxy=http://docker:docker@213.176.75.31:5858
     volumes:
       - ./src:/src
     ports:
