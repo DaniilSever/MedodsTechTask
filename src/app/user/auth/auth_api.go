@@ -95,7 +95,7 @@ func (h *API) loginEmail(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	res, err := h.uc.LoginEmail(c.Request.Context(), &req)
+	res, err := h.uc.LoginEmail(c.Request.Context(), &req, c.GetHeader("User-Agent"), c.ClientIP())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -118,7 +118,7 @@ func (h *API) refreshToken(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	res, err := h.uc.RefreshToken(c.Request.Context(), &req)
+	res, err := h.uc.RefreshToken(c.Request.Context(), &req, c.GetHeader("User-Agent"), c.ClientIP())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

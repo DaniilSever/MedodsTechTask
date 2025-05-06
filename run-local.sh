@@ -7,3 +7,5 @@ docker volume rm $(docker volume ls -q)
 # cd ..
 
 docker compose up --build
+
+# docker-compose -f docker-compose.yml up -d

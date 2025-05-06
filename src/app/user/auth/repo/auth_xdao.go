@@ -32,7 +32,10 @@ type XRefreshToken struct {
 	ID        string     `db:"id"`
 	AccountID string     `db:"accouint_id"`
 	Token     string     `db:"token"`
+	UserAgent string     `db:"user_agent"`
+	IpAddress string     `db:"ip_address"`
 	ExpiresAt time.Time  `db:"expires_at"`
+	IsRevoked bool       `db:"is_revoked"`
 	CreatedAt time.Time  `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 }

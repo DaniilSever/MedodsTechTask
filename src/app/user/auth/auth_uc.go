@@ -78,7 +78,7 @@ func (s *AuthUseCase) ConfirmEmail(ctx context.Context, req *share.QConfirmEmail
 	}, nil
 }
 
-func (s *AuthUseCase) LoginEmail(ctx context.Context, login *share.QLoginEmail) (*share.ZToken, error) {
+func (s *AuthUseCase) LoginEmail(ctx context.Context, login *share.QLoginEmail, user_agent string, ip string) (*share.ZToken, error) {
 	acc, err := s.repo.GetAccountForEmail(ctx, login.Email)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (s *AuthUseCase) LoginEmail(ctx context.Context, login *share.QLoginEmail) 
 		return nil, err
 	}
 
-	_, err = s.repo.SaveRefreshToken(ctx, acc.ID, refresh_token)
+	_, err = s.repo.SaveRefreshToken(ctx, acc.ID, user_agent, ip, refresh_token)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (s *AuthUseCase) LoginEmail(ctx context.Context, login *share.QLoginEmail) 
 	}, nil
 }
 
-func (s *AuthUseCase) RefreshToken(ctx context.Context, req *share.QRefreshToken) (*share.ZToken, error) {
+func (s *AuthUseCase) RefreshToken(ctx context.Context, req *share.QRefreshToken, user_agent string, ip string) (*share.ZToken, error) {
 	payload, err := DecodeJWT(req.RefreshToken, s.cfg.JWTPublicKey)
 	if err != nil {
 		return nil, err
@@ -135,9 +135,20 @@ func (s *AuthUseCase) RefreshToken(ctx context.Context, req *share.QRefreshToken
 
 	acc_id := payload["sub"].(string)
 
-	_, err = s.repo.GetRefreshTokenForAccount(ctx, acc_id, req.RefreshToken)
+	res, err := s.repo.GetRefreshTokenForAccount(ctx, acc_id, req.RefreshToken)
 	if err != nil {
 		return nil, err
+	}
+	if res.IsRevoked {
+		return nil, fmt.Errorf("токен отозван")
+	} else {
+		if user_agent != res.UserAgent || ip != res.IpAddress {
+			_, err = s.repo.RevokeToken(ctx, acc_id)
+			if err != nil {
+				return nil, err
+			}
+			return nil, fmt.Errorf("токен отозван")
+		}
 	}
 
 	access_payload := map[string]interface{}{

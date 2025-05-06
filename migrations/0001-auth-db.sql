@@ -61,7 +61,10 @@ CREATE TABLE "RefreshToken"
     id              UUID            DEFAULT uuid_generate_v4() PRIMARY KEY,
     account_id      UUID            NOT NULL,
     token           VARCHAR(1020)   NOT NULL UNIQUE,
+    user_agent      VARCHAR(255)    NOT NULL,
+    ip_address      VARCHAR(255)    NOT NULL,
     expires_at      TIMESTAMP       NOT NULL,
+    is_revoked      BOOLEAN         DEFAULT FALSE NOT NULL,  
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     updated_at      TIMESTAMP       NULL
 );
@@ -71,7 +74,10 @@ CREATE INDEX ON "RefreshToken" (account_id);
 COMMENT ON TABLE "RefreshToken" is 'Таблица для хранения токенов';
 COMMENT ON COLUMN "RefreshToken".account_id is 'ID аккаунта, которому принадлежит токен';
 COMMENT ON COLUMN "RefreshToken".token is 'Сам токен (Refresh Token)';
+COMMENT ON COLUMN "RefreshToken".user_agent is 'Данные о пользователе';
+COMMENT ON COLUMN "RefreshToken".ip_address is 'IP адрес пользователя';
 COMMENT ON COLUMN "RefreshToken".expires_at is 'Время истечения токена';
+COMMENT ON COLUMN "RefreshToken".is_revoked is 'Отозван ли токен';
 COMMENT ON COLUMN "RefreshToken".created_at is 'Время создания записи';
 COMMENT ON COLUMN "RefreshToken".updated_at is 'Время последнего обновления';
 
