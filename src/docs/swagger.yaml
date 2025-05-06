@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  core.ZError:
+    properties:
+      code:
+        example: 500
+        type: integer
+      exception: {}
+      message:
+        example: Пример ошибки
+        type: string
+      where:
+        example: ExampleAPI
+        type: string
+    type: object
   share.QConfirmEmail:
     properties:
       code:
@@ -117,19 +130,19 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/share.ZAccount'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.ZError'
       summary: Подтверждение регистрации
-      tags:
-      - Auth
-  /user/auth/health:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-      summary: Проверка работоспособности сервиса
       tags:
       - Auth
   /user/auth/login/email:
@@ -150,6 +163,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/share.ZToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.ZError'
       summary: Вход в аккаунт через email
       tags:
       - Auth
@@ -171,6 +196,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/share.ZToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.ZError'
       summary: Рефреш токена
       tags:
       - Auth
@@ -192,6 +229,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/share.ZEmailSignup'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.ZError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.ZError'
       summary: Регистрация пользователя
       tags:
       - Auth

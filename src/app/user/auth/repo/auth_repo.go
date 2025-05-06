@@ -60,7 +60,7 @@ func (r *AuthRepo) CreateEmailSignup(ctx context.Context, email string, passwd_h
 	`
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error to connections on PG: %w", err)
+		return nil, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -70,7 +70,7 @@ func (r *AuthRepo) CreateEmailSignup(ctx context.Context, email string, passwd_h
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return nil, &core.ErrCreateSignup{Email: email, ErrMessage: err}
+			return nil, &core.ErrCreateSignup{ErrMessage: err}
 		}
 
 		return nil, &core.ErrPGRepo{ErrMessage: err}
@@ -93,7 +93,7 @@ func (r *AuthRepo) CreateAccount(ctx context.Context, req *XEmailSignup) (*XAcco
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error to connections on PG: %w", err)
+		return nil, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -103,7 +103,7 @@ func (r *AuthRepo) CreateAccount(ctx context.Context, req *XEmailSignup) (*XAcco
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return nil, &core.ErrCreateAccount{Email: req.Email, ErrMessage: err}
+			return nil, &core.ErrCreateAccount{ErrMessage: err}
 		}
 
 		return nil, &core.ErrPGRepo{ErrMessage: err}
@@ -128,7 +128,7 @@ func (r *AuthRepo) GetEmailSignup(ctx context.Context, id string) (*XEmailSignup
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error to connections on PG: %w", err)
+		return nil, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -137,7 +137,7 @@ func (r *AuthRepo) GetEmailSignup(ctx context.Context, id string) (*XEmailSignup
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, &core.ErrEmailSignupNotFound{ID: id, ErrMessage: err}
+			return nil, &core.ErrEmailSignupNotFound{ErrMessage: err}
 		}
 
 		return nil, &core.ErrPGRepo{ErrMessage: err}
@@ -162,7 +162,7 @@ func (r *AuthRepo) GetAccountForEmail(ctx context.Context, email string) (*XAcco
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error to connections on PG: %w", err)
+		return nil, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -171,7 +171,7 @@ func (r *AuthRepo) GetAccountForEmail(ctx context.Context, email string) (*XAcco
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, &core.ErrAccountNotFound{Email: email, ErrMessage: err}
+			return nil, &core.ErrAccountNotFound{ErrMessage: err}
 		}
 
 		return nil, &core.ErrPGRepo{ErrMessage: err}
@@ -187,7 +187,7 @@ func (r *AuthRepo) DeleteEmailSignup(ctx context.Context, id string) (bool, erro
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return false, fmt.Errorf("error to connections on PG: %w", err)
+		return false, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -195,7 +195,7 @@ func (r *AuthRepo) DeleteEmailSignup(ctx context.Context, id string) (bool, erro
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return false, &core.ErrEmailSignupNotFound{ID: id, ErrMessage: err}
+			return false, &core.ErrEmailSignupNotFound{ErrMessage: err}
 		}
 
 		return false, &core.ErrPGRepo{ErrMessage: err}
@@ -222,7 +222,7 @@ func (r *AuthRepo) SaveRefreshToken(ctx context.Context, account_id string, user
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error to connections on PG: %w", err)
+		return nil, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -232,7 +232,7 @@ func (r *AuthRepo) SaveRefreshToken(ctx context.Context, account_id string, user
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return nil, &core.ErrSaveToken{Token: token, ErrMessage: err}
+			return nil, &core.ErrSaveToken{ErrMessage: err}
 		}
 
 		return nil, &core.ErrPGRepo{ErrMessage: err}
@@ -262,7 +262,7 @@ func (r *AuthRepo) GetRefreshTokenForAccount(ctx context.Context, account_id str
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error to connections on PG: %w", err)
+		return nil, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 
@@ -271,7 +271,7 @@ func (r *AuthRepo) GetRefreshTokenForAccount(ctx context.Context, account_id str
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, &core.ErrTokenNotFound{Token: token, ErrMessage: err}
+			return nil, &core.ErrTokenNotFound{ErrMessage: err}
 		}
 
 		return nil, &core.ErrPGRepo{ErrMessage: err}
@@ -290,7 +290,7 @@ func (r *AuthRepo) RevokeToken(ctx context.Context, account_id string) (bool, er
 
 	conn, err := r.pgRepo.Acquire(ctx)
 	if err != nil {
-		return false, fmt.Errorf("error to connections on PG: %w", err)
+		return false, &core.ErrPGRepo{ErrMessage: err}
 	}
 	defer conn.Release()
 

@@ -44,25 +44,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/share.ZAccount"
                         }
-                    }
-                }
-            }
-        },
-        "/user/auth/health": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Проверка работоспособности сервиса",
-                "responses": {
-                    "200": {
-                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
                     }
                 }
             }
@@ -95,6 +94,24 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/share.ZToken"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
                         }
                     }
                 }
@@ -129,6 +146,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/share.ZToken"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
                     }
                 }
             }
@@ -162,12 +197,42 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/share.ZEmailSignup"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.ZError"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "core.ZError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "exception": {},
+                "message": {
+                    "type": "string",
+                    "example": "Пример ошибки"
+                },
+                "where": {
+                    "type": "string",
+                    "example": "ExampleAPI"
+                }
+            }
+        },
         "share.QConfirmEmail": {
             "type": "object",
             "properties": {

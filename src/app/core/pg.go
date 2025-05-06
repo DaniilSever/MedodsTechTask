@@ -59,18 +59,3 @@ func (r *PgRepo) Acquire(ctx context.Context) (*pgxpool.Conn, error) {
 	}
 	return r.pool.Acquire(ctx)
 }
-
-// HealthCheck проверяет доступность БД
-func (r *PgRepo) HealthCheck(ctx context.Context) (bool, error) {
-	conn, err := r.Acquire(ctx)
-	if err != nil {
-		return false, err
-	}
-	defer conn.Release()
-
-	if _, err := conn.Exec(ctx, "SELECT 1"); err != nil {
-		return false, nil
-	}
-
-	return true, nil
-}

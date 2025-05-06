@@ -5,11 +5,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"math/big"
 	"strings"
 	"time"
 
+	"github.com/MedodsTechTask/app/core"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -25,20 +25,20 @@ import (
 //   - ошибку (если возникла)
 func CreatePasswordHash(pwd string, salt string) (string, string, error) {
 	if pwd == "" {
-		return "", "", errors.New("пароль не может быть пустым")
+		return "", "", &core.ErrPasswordEmpty{ErrMessage: nil}
 	}
 
 	if salt == "" {
 		saltBytes := make([]byte, 16)
 		if _, err := rand.Read(saltBytes); err != nil {
-			return "", "", fmt.Errorf("ошибка генерации соли: %w", err)
+			return "", "", &core.ErrGenerationSalt{ErrMessage: err}
 		}
 		salt = hex.EncodeToString(saltBytes)
 	}
 
 	hash := sha256.New()
 	if _, err := hash.Write([]byte(pwd + salt)); err != nil {
-		return "", "", fmt.Errorf("ошибка хеширования: %w", err)
+		return "", "", &core.ErrGenerationHash{ErrMessage: err}
 	}
 	hashSum := hash.Sum(nil)
 	hashHex := hex.EncodeToString(hashSum)
@@ -53,9 +53,8 @@ func CreateConfirmCode() (string, error) {
 
 	for i := 0; i < size; i++ {
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(scheme))))
-
 		if err != nil {
-			return "", err
+			return "", &core.ErrGenerationConfirmCode{ErrMessage: err}
 
 		}
 		res[i] = scheme[num.Int64()]
@@ -82,14 +81,14 @@ func CreateJWT(payload map[string]interface{}, private_key string) (string, erro
 
 	key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(private_key))
 	if err != nil {
-		return "", err
+		return "", &core.ErrParsePrivateKey{ErrMessage: err}
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
 
 	signedToken, err := token.SignedString(key)
 	if err != nil {
-		return "", err
+		return "", &core.ErrSignedJwt{ErrMessage: err}
 	}
 
 	return signedToken, nil
@@ -98,25 +97,25 @@ func CreateJWT(payload map[string]interface{}, private_key string) (string, erro
 func DecodeJWT(token_string string, public_key string) (map[string]interface{}, error) {
 	key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(strings.TrimSpace(public_key)))
 	if err != nil {
-		return nil, err
+		return nil, &core.ErrParsePublicKey{ErrMessage: err}
 	}
 
 	token, err := jwt.Parse(token_string, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, errors.New("unexpected signing method")
+			return nil, &core.ErrUnExpectedSign{ErrMessage: err}
 		}
 		return key, nil
 	})
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return nil, errors.New("JWT token has expired")
+			return nil, &core.ErrJwtExpired{ErrMessage: err}
 		}
-		return nil, errors.New("incorrect jwt")
+		return nil, &core.ErrIncorrectJwt{ErrMessage: err}
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, errors.New("invalid JWT payload")
+	return nil, &core.ErrInvalidJwtPayload{ErrMessage: err}
 }
