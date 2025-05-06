@@ -9,9 +9,6 @@ const (
 	// UserAuthPath - роут auth сервиса
 	UserAuthPath = "/user/auth"
 
-	// UserAuthHealthCheck - Проверка состояния сервиса auth
-	UserAuthHealthCheck = "/health"
-
 	// UserAuthSignUpEmail - Регистрация пользователя через email + пароль
 	UserAuthSignUpEmail = "/signup/email"
 
