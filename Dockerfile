@@ -1,8 +1,5 @@
 FROM golang:1.24 AS builder
 
-ENV http_proxy http://docker:docker@213.176.75.31:5858
-ENV https_proxy http://docker:docker@213.176.75.31:5858
-
 ARG ENV=${ENV}
 ENV ENV=${ENV}
 
